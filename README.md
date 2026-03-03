@@ -32,6 +32,23 @@ This project implements:
 - `EXP_OUT_WL/IWL = 21/1`
 - `EXP_INT_WL/IWL = 23/4`
 
+## Current Stable Core Status
+
+The checked-in core has been manually tuned beyond the raw sweep result and has been re-validated locally.
+
+- `csim` result:
+  - `mse=2.313576275515e-11`
+  - `ucb95=2.343615783293e-11`
+- latest local `csynth` result for the checked-in core:
+  - `lat_best/avg/worst = 10 / 10 / 10 cycles`
+  - `II = 1`
+  - `EstimatedClockPeriod = 6.854 ns`
+  - `LUT = 3928`
+  - `FF = 1208`
+  - `DSP = 0`
+  - `BRAM = 0`
+  - `URAM = 0`
+
 ## Optuna Sweep Configuration
 
 ### Python dependency
@@ -72,6 +89,7 @@ powershell -ExecutionPolicy Bypass -File .\sweep_optuna\run_full.ps1
 - auto cleanup enabled:
   - `--reset-study-on-start`
   - `--clean-runs-on-start`
+  - `--save-runs none`
 
 ### Custom sweep
 
@@ -96,6 +114,10 @@ Source: `sweep_optuna/results/sweep_summary.txt`
   - `ii=[1,1]`
   - `lut=4214`, `ff=1497`, `dsp=0`, `bram=0`, `uram=0`
   - `est_slack_ns=2.807`
+
+Note:
+- The sweep best above is the best point from the automated search snapshot.
+- The checked-in current source has since been manually refined and currently synthesizes to `10` cycles with the same fixed-point defaults shown above.
 
 ## Pareto Plot
 
