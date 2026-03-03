@@ -189,18 +189,6 @@ static const exp_int_t kInvK = exp_int_t(1.2074970677601435);
 #error "INV_K table supports EXP_CORDIC_ITERS in [1, 20]"
 #endif
 
-// ============================================================================
-// Range Reduction Tables for x in [-8, 0]
-// ============================================================================
-// {-ln2, -2ln2, ..., -12ln2}
-static const exp_int_t kNegLn2Thresh[12] = {
-    exp_int_t(-0.6931471805599453), exp_int_t(-1.3862943611198906),
-    exp_int_t(-2.0794415416798357), exp_int_t(-2.7725887222397811),
-    exp_int_t(-3.4657359027997265), exp_int_t(-4.1588830833596715),
-    exp_int_t(-4.8520302639196169), exp_int_t(-5.5451774444795623),
-    exp_int_t(-6.2383246250395077), exp_int_t(-6.9314718055994531),
-    exp_int_t(-7.6246189861593985), exp_int_t(-8.3177661667193430)};
-
 // {0*ln2, 1*ln2, ..., 12*ln2}
 static const exp_int_t kLn2Mul[13] = {
     exp_int_t(0.0000000000000000), exp_int_t(0.6931471805599453),
@@ -210,6 +198,15 @@ static const exp_int_t kLn2Mul[13] = {
     exp_int_t(5.5451774444795623), exp_int_t(6.2383246250395077),
     exp_int_t(6.9314718055994531), exp_int_t(7.6246189861593985),
     exp_int_t(8.3177661667193430)};
+
+// {-ln2, -2ln2, ..., -12ln2}
+static const exp_int_t kNegLn2Thresh[12] = {
+    exp_int_t(-0.6931471805599453), exp_int_t(-1.3862943611198906),
+    exp_int_t(-2.0794415416798357), exp_int_t(-2.7725887222397811),
+    exp_int_t(-3.4657359027997265), exp_int_t(-4.1588830833596715),
+    exp_int_t(-4.8520302639196169), exp_int_t(-5.5451774444795623),
+    exp_int_t(-6.2383246250395077), exp_int_t(-6.9314718055994531),
+    exp_int_t(-7.6246189861593985), exp_int_t(-8.3177661667193430)};
 
 // ============================================================================
 // Helpers
@@ -296,15 +293,6 @@ exp_out_t exp_cordic_ip(exp_in_t x) {
     ap_uint<4> idx = ap_uint<4>(-k);
     exp_int_t r = x_int + kLn2Mul[(int)idx];
 
-    // Guard against edge quantization at boundaries.
-    if (r < exp_int_t(0)) {
-        r += kLn2;
-        k -= 1;
-    } else if (r >= kLn2) {
-        r -= kLn2;
-        k += 1;
-    }
-
     exp_int_t X = kInvK;
     exp_int_t Y = exp_int_t(0);
     exp_int_t Z = r;
@@ -314,16 +302,19 @@ exp_out_t exp_cordic_ip(exp_in_t x) {
         const int s = (int)kShiftSeq[i];
         const exp_int_t X_old = X;
         const exp_int_t Y_old = Y;
+        const bool z_nonneg = (Z >= exp_int_t(0));
+        const exp_int_t x_shift = X_old >> s;
+        const exp_int_t y_shift = Y_old >> s;
+        const exp_int_t x_add = X_old + y_shift;
+        const exp_int_t x_sub = X_old - y_shift;
+        const exp_int_t y_add = Y_old + x_shift;
+        const exp_int_t y_sub = Y_old - x_shift;
+        const exp_int_t z_sub = Z - kAtanhTbl[i];
+        const exp_int_t z_add = Z + kAtanhTbl[i];
 
-        if (Z >= exp_int_t(0)) {
-            X = X_old + (Y_old >> s);
-            Y = Y_old + (X_old >> s);
-            Z = Z - kAtanhTbl[i];
-        } else {
-            X = X_old - (Y_old >> s);
-            Y = Y_old - (X_old >> s);
-            Z = Z + kAtanhTbl[i];
-        }
+        X = z_nonneg ? x_add : x_sub;
+        Y = z_nonneg ? y_add : y_sub;
+        Z = z_nonneg ? z_sub : z_add;
     }
 
     const exp_int_t exp_r = X + Y;
