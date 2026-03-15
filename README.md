@@ -97,33 +97,16 @@ powershell -ExecutionPolicy Bypass -File .\sweep_optuna\run_full.ps1
 python .\sweep_optuna\run_optuna_sweep.py --help
 ```
 
-## Best Result (latest local full-grid run)
+## Best Result
 
-Source: `sweep_optuna/results/sweep_summary.txt`
-
-- Search space: 1280 points
-- Passed configs: 347
-- Objective: latency (0.9) + area (0.1)
-- Best passing configuration:
-  - `iters=17`
-  - `out_wl=21`, `out_iwl=1`
-  - `int_wl=23`, `int_iwl=4`
-  - `mse=2.313576275515e-11`
-  - `ucb95=2.343615783293e-11`
-  - `lat_worst=12 cycles` (`120 ns` @ `10 ns` target clock)
-  - `ii=[1,1]`
-  - `lut=4214`, `ff=1497`, `dsp=0`, `bram=0`, `uram=0`
-  - `est_slack_ns=2.807`
-
-Note:
-- The sweep best above is the best point from the automated search snapshot.
-- The checked-in current source has since been manually refined and currently synthesizes to `10` cycles with the same fixed-point defaults shown above.
-
-## Pareto Plot
-
-Latest Pareto frontier snapshot:
-
-![Pareto Frontier](docs/pareto.png)
+- `lat_best/avg/worst = 10 / 10 / 10 cycles`
+- `II = 1`
+- `EstimatedClockPeriod = 6.854 ns`
+- `LUT = 3928`
+- `FF = 1208`
+- `DSP = 0`
+- `BRAM = 0`
+- `URAM = 0`
 
 ## License
 

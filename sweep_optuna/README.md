@@ -7,9 +7,7 @@ This folder contains the design-space exploration (DSE) flow for `exp_cordic_ip`
 - `run_full.ps1`: one-shot full run launcher
 - `run_topk_impl.py`: optional top-k implementation flow
 - `runs/`: per-trial working directories (can be auto-cleaned)
-- `results/sweep_results.csv`: per-trial metrics
-- `results/sweep_summary.txt`: summary and best passing config
-- `results/optuna_study.db`: Optuna study DB
+- `results/`: generated sweep outputs (ignored by git)
 
 ## Install
 ```powershell
